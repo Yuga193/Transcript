@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>動画ファイルからテキストへの変換</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        #drop_zone {
+            width: 300px;
+            height: 200px;
+            border: 2px dashed #0087F7;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 200px;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+            color: #0087F7;
+            cursor: pointer;
+        }
+        .hover {
+            background-color: #f0f8ff;
+        }
+        #output {
+            width: 300px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+    <script>
+    $(document).ready(function() {
+        var dropZone = $('#drop_zone');
+        var output = $('#output');
+
+        dropZone.on('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('hover');
+        });
+
+        dropZone.on('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('hover');
+        });
+
+        dropZone.on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('hover');
+            $(this).text('処理中...');
+            var files = e.originalEvent.dataTransfer.files;
+            uploadFiles(files);
+        });
+
+        function uploadFiles(files) {
+            var formData = new FormData();
+            formData.append('file', files[0]);
+            
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    dropZone.text('ファイルをここにドロップ');
+                    output.html('<strong>テキスト:</strong><br>' + data.text);
+                },
+                error: function() {
+                    dropZone.text('ファイルをここにドロップ');
+                    output.text('Failed to process the file.');
+                }
+            });
+        }
+    });
+    </script>
+</head>
+<body>
+    <h1>動画ファイルからテキストへ変換</h1>
+    <div id="drop_zone">ファイルをここにドロップ</div>
+    <div id="output">テキストがここに表示されます。</div>
+</body>
+</html>
